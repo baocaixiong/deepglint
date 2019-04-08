@@ -29,6 +29,11 @@ const (
 	ArrayType InputType = '*'
 )
 
+var (
+	errPrefix      = errors.New("errors prefix")
+	unexpectEnding = errors.New("unexpect ending")
+)
+
 type Input struct {
 	Type  InputType
 	Value []byte
@@ -105,7 +110,7 @@ func (p *Parser) Parse() (*Input, error) {
 	case BulkStringType:
 		res.Value, err = p.parseBulkString()
 	default:
-		return nil, errors.New("bad input")
+		return nil, errPrefix
 	}
 
 	if err != nil {
@@ -122,7 +127,7 @@ func (p *Parser) parseStringType() ([]byte, error) {
 	}
 	length := len(line) - 2 // 末尾必有一个CRLF
 	if length < 0 || line[length] != '\r' {
-		return nil, errors.New("bad input") // TODO error struct
+		return nil, unexpectEnding
 	}
 
 	return line[:length], nil
@@ -135,7 +140,7 @@ func (p *Parser) getArrayOrBulkLen() (int64, error) {
 	}
 	length := len(lenBytes) - 2
 	if length < 0 || lenBytes[length] != '\r' {
-		return 0, errors.New("bad input") // TODO error struct
+		return 0, unexpectEnding
 	}
 
 	return strconv.ParseInt(string(lenBytes[:length]), 10, 64)
@@ -152,7 +157,7 @@ func (p *Parser) parseBulkString() ([]byte, error) {
 	case bulkLen == -1:
 		return nil, nil // 数据就是空的
 	case bulkLen < -1:
-		return nil, errors.New("bad bulk string")
+		return nil, errors.New("bad bulk string") // TODO
 	}
 	bs := make([]byte, bulkLen+2)
 
@@ -162,7 +167,7 @@ func (p *Parser) parseBulkString() ([]byte, error) {
 	}
 
 	if int64(readLen) != bulkLen+2 {
-		return nil, errors.New("less bulk string")
+		return nil, errors.New("less bulk string") // TODO
 	}
 
 	if bs[bulkLen] != '\r' || bs[bulkLen+1] != '\n' {
@@ -180,7 +185,7 @@ func (p *Parser) parseArrayType() ([]*Input, error) {
 
 	switch {
 	case arrayLen < -1:
-		return nil, errors.New("bad array length")
+		return nil, errors.New("bad array length") // TODO
 	case arrayLen == -1:
 		return nil, nil // 说明数据就是空的
 		// 有最大长度限制吗？
