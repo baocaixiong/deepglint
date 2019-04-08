@@ -17,7 +17,7 @@ const (
 	StringType InputType = '+'
 	ErrorType  InputType = '-'
 	IntType    InputType = ':'
-	// 大体积，紧接着跟随一个byte数组，然后一个CRLF,然后是实际数据
+	// 大体积，紧接着跟随一个数字表示数据大小,然后是实际数据
 	BulkStringType InputType = '$'
 
 	// 数组，紧接着一个是数组的长度，然后使用BulkString分别返回
