@@ -70,7 +70,7 @@ func main() {
 		fmt.Println(er)
 		os.Exit(1)
 	}
-	fmt.Print("type: ", input.Type, "\n")
+	fmt.Print("type: ", string(input.Type), "\n")
 	if input.Type != ArrayType {
 		fmt.Println(string(input.Value), "@from value")
 	} else {
